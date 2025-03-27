@@ -1,0 +1,57 @@
+package com.poly.lab6_java6.config;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.BeanIds;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.Collections;
+
+@Configuration
+@EnableWebSecurity
+@Order(1)
+public class WebSecurityConfig {
+    @Autowired
+    private CustomUserDetailsService userService;
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() { return new JwtAuthenticationFilter(); } // ta
+
+    @Bean(BeanIds.AUTHENTICATION_MANAGER)
+    public AuthenticationManager authenticationManager() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(Collections.singletonList(provider));
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); } // PasswordEncoder
+
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        
+    }
+
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .cors( cors -> cors.disable())
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests( au-> au.requestMatchers("/auth/login").permitAll()
+                        .anyRequest().authenticated());
+
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+    }
+    // wt
+
+}
