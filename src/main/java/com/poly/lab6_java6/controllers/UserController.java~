@@ -59,8 +59,8 @@ public class UserController {
                             loginRequest.getPassword()
                     )
             );
-//            nếu thành công thì sẽ trả lại authentication gồm thông tin của User thì dtb
-//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            nếu đúng tạo Authentication và set với SecurityContextHolder
+            SecurityContextHolder.getContext().setAuthentication(authentication);
             CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
             System.out.println("User Authorities: " + authentication.getAuthorities());
             String jwt = jwtTokenProvider.generateToken(customUserDetails.getUsername());

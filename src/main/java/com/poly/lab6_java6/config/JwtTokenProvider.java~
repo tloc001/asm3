@@ -27,13 +27,15 @@ public class JwtTokenProvider {
     //setSubject(username): Lưu username vào JWT.
 //setExpiration(expiryDate): Thiết lập thời gian hết hạn.
 //signWith(secretKey): Ký JWT bằng secret key.
-    public String generateToken(String username) {
+    public String generateToken(CustomUserDetails userDetails, String username) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", userDetails.getAuthorities()); // Lấy danh sách roles (ví dụ: ROLE_USER, ROLE_ADMIN)
 
         log.info("getSecretKey :{}", jwtSecret);
             Date now = new Date();
             Date expiryDate = new Date(now.getTime() + jwtExpiration);
             return Jwts.builder()
-
+                    .setClaims(claims)
                     .setSubject(username)
                     .setIssuedAt(now)
                     .setExpiration(expiryDate)
@@ -43,7 +45,6 @@ public class JwtTokenProvider {
         }
 //    lay username tu JWT ra
 //    lay ra duoc subject truyen vao
-
         public String extractUsername (String token){
             return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
         }

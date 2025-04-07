@@ -42,12 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 final String jwt = authHeader.substring(7);
 //                lay ra thong tin cua username
                 final String username = jwtTokenProvider.extractUsername(jwt);
-
 // kiem tra token co ton tai hay kh
-//                Lấy thông tin xác thực hiện tại từ SecurityContextHolder.
-//Nếu user đã đăng nhập, biến authentication sẽ không null.
-//Nếu chưa đăng nhập hoặc token chưa được xác thực, authentication == null.
-                if (username != null ) {
                     CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(username);
                     log.info("userDetails:{}", userDetails);
                     //Kiểm tra token có hết hạn không.
@@ -55,18 +50,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                 userDetails,
                                 null,
+//                                truyen vao ADMIN hoac USER
                                 userDetails.getAuthorities()
                         );
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
-                }else{
-                    // Nếu token hết hạn, xóa authentication để user phải đăng nhập lại
-                    SecurityContextHolder.clearContext();
-                }
                 filterChain.doFilter(request, response);
                 return;
             } catch (Exception e) {
+                // Nếu token hết hạn, xóa authentication để user phải đăng nhập lại
+                System.out.println("Token het han hoac sai token");
+                SecurityContextHolder.clearContext();
                 log.error("failed on set user authentication", e);
             }
         }

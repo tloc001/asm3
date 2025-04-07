@@ -43,6 +43,7 @@ public class SecurityConfig {
                        .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
                );
         http
+//                xu li login cho nguoi dung khi mà chua dang nhap
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Thêm filter xử lý JWT
 
 
