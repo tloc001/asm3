@@ -3,9 +3,7 @@ package com.poly.lab6_java6.controllers;
 import com.poly.lab6_java6.config.CustomUserDetails;
 import com.poly.lab6_java6.config.JwtTokenProvider;
 import com.poly.lab6_java6.models.LoginRequest;
-import com.poly.lab6_java6.repositories.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,15 +11,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.security.auth.login.LoginContext;
 import java.util.Map;
 
 @RestController
@@ -88,7 +83,6 @@ public class UserController {
     public ResponseEntity<String> loginFailed() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Đăng nhập thất bại!");
     }
-
     @GetMapping("/ok")
     public ResponseEntity<?> getUser() {
         return ResponseEntity.ok("okkk");

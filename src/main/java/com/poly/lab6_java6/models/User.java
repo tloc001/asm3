@@ -1,46 +1,29 @@
 package com.poly.lab6_java6.models;
 
-import jakarta.persistence.Column;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "Users")
-@Data
+@Table(name ="users")
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class User {
-	@Id
-    private String username;
-
-    private String fullname;
-
-    private String password;
-
-    private LocalDate birthday;
-    
+    @Id
     private String email;
-
-    private String phone;
-
-    @Column(name = "create_at")
-    private LocalDateTime createdAt ;
-
-    @Column(name = "update_at")
-    private LocalDateTime updatedAt = LocalDateTime.now();
-
-    private String address;
-// mặc định là user
-    private String role ="USER";
-
-    private Boolean enabled = true;
-
-    
+    private String fullname;
+    private String password;
+    private String picture;
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference // Đánh dấu phía cha quản lý dữ liệu này
+    private List<Authority> authorities = new ArrayList<Authority>();
 }

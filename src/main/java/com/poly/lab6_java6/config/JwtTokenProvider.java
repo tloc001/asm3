@@ -1,5 +1,9 @@
 package com.poly.lab6_java6.config;
 
+import com.poly.lab6_java6.models.Authority;
+import com.poly.lab6_java6.models.User;
+import com.poly.lab6_java6.repositories.AuthorityRepository;
+import com.poly.lab6_java6.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -7,20 +11,20 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Comment;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 @Component
 @Log4j2
 public class JwtTokenProvider {
+
     private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    private final String jwtSecret = Base64.getEncoder().encodeToString(secretKey.getEncoded());
     private final long jwtExpiration = 36000000;
 //    Thoi gian het han cua 1 token
 
@@ -28,12 +32,9 @@ public class JwtTokenProvider {
 //setExpiration(expiryDate): Thiết lập thời gian hết hạn.
 //signWith(secretKey): Ký JWT bằng secret key.
     public String generateToken(String username) {
-
-        log.info("getSecretKey :{}", jwtSecret);
             Date now = new Date();
             Date expiryDate = new Date(now.getTime() + jwtExpiration);
             return Jwts.builder()
-
                     .setSubject(username)
                     .setIssuedAt(now)
                     .setExpiration(expiryDate)
@@ -45,16 +46,21 @@ public class JwtTokenProvider {
 //    lay ra duoc subject truyen vao
 
         public String extractUsername (String token){
-            return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+            return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
         }
 
         public boolean isTokenExpired (String token){
-            return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getExpiration().before(new Date());
+            return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getExpiration().before(new Date());
         }
 //  So sánh username trong token với user đăng nhập.
 //Kiểm tra token có hết hạn không.
-        public boolean validateToken (String token, String username){
-            return (username.equals(extractUsername(token)) && !isTokenExpired(token));
-        }
+public boolean validateToken(String token, String username) {
+    try {
+        return (username.equals(extractUsername(token)) && !isTokenExpired(token));
+    } catch (Exception e) {
+        log.error("Token validation failed", e);
+        return false;
+    }
+}
 
     }

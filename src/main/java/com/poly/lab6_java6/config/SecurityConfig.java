@@ -1,5 +1,8 @@
 package com.poly.lab6_java6.config;
 
+import com.poly.lab6_java6.services.CustomOAuth2UserService;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,40 +22,55 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@Log4j2
 public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     @Autowired
     private UserDetailsService userDetailsService;
+    @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Cấu hình bảo mật
-       http.csrf(csrf -> csrf.disable())
-               .authorizeHttpRequests(auth -> auth.requestMatchers("/oauth2/**","/test","/login").permitAll()
-                       .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                       .requestMatchers("/user/**").hasAuthority("USER")
-                       .anyRequest().authenticated()
-               )
-               .oauth2Login(oauth2 -> oauth2 // Kích hoạt OAuth2
-                       .defaultSuccessUrl("/oauth2/success", true) // Redirect sau khi đăng nhập thành công
-                       .failureUrl("/oauth2/failure") // Redirect khi thất bại
-                       .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
-               );
-        http
-//                xu li login cho nguoi dung khi mà chua dang nhap
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Thêm filter xử lý JWT
+        http.csrf(csrf -> csrf.disable())
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authenticationProvider(authenticationProvider())
+//                .anonymous(anonymous -> anonymous.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/oauth2/**", "/test", "/login").permitAll()
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/user/**").hasAnyAuthority("USER","ADMIN")
+                        .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(info -> info.userService(customOAuth2UserService))
+                        .defaultSuccessUrl("/oauth2/success", true)
+                        .failureUrl("/oauth2/failure")
+                        .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("401 - Chưa đăng nhập hoặc token lỗi");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.getWriter().write("403 - Không có quyền truy cập");
+                        })
+                );
 
+
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-//       mỗi request đều yêu cầu jwt
-//       .sessionManagement(session
-//                       -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//       http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
+
 
 
     @Bean

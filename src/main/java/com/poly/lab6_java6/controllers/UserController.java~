@@ -3,9 +3,7 @@ package com.poly.lab6_java6.controllers;
 import com.poly.lab6_java6.config.CustomUserDetails;
 import com.poly.lab6_java6.config.JwtTokenProvider;
 import com.poly.lab6_java6.models.LoginRequest;
-import com.poly.lab6_java6.repositories.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,15 +11,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.security.auth.login.LoginContext;
 import java.util.Map;
 
 @RestController
@@ -59,8 +54,8 @@ public class UserController {
                             loginRequest.getPassword()
                     )
             );
-//            nếu đúng tạo Authentication và set với SecurityContextHolder
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            nếu thành công thì sẽ trả lại authentication gồm thông tin của User thì dtb
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
             CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
             System.out.println("User Authorities: " + authentication.getAuthorities());
             String jwt = jwtTokenProvider.generateToken(customUserDetails.getUsername());

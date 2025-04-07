@@ -42,7 +42,9 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
                     );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    }
+
+                    System.out.println("✅ Đã xác thực user: " + username + " - Quyền: " + userDetails.getAuthorities());
+                }
             }
         } catch (Exception e) {
             // ❗Nếu token lỗi, xóa context & không set auth
