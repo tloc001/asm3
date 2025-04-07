@@ -39,13 +39,13 @@ public class JwtTokenProvider {
     }
 //    lay username tu JWT ra
 //    lay ra duoc subject truyen vao
-    public String getUsernameFromJWT(String token){
-        Claims claims = Jwts.parser()
-                .setSigningKey(jwtSecret)
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.getSubject();
-    }
+//    public String getUsernameFromJWT(String token){
+//        Claims claims = Jwts.parser()
+//                .setSigningKey(jwtSecret)
+//                .parseClaimsJws(token)
+//                .getBody();
+//        return claims.getSubject();
+//    }
 //    Lấy username từ JWT để xác thực người dùng.
     public String extractUsername(String token){
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();

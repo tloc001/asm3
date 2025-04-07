@@ -44,8 +44,6 @@ public class UserController {
                             loginRequest.getPassword()
                     )
             );
-            System.err.println("controler 1");
-
 //            nếu đúng tạo Authentication và set với SecurityContextHolder
             SecurityContextHolder.getContext().setAuthentication(authentication);
             CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();

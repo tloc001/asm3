@@ -33,6 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("request:{}", request.getRequestURL());
         final String authHeader = request.getHeader("Authorization");
+        System.err.println("Bearer 0:"+ authHeader);
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             System.err.println("Bearer 1:"+ authHeader);
             log.info("........................................");
@@ -63,7 +64,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     // Nếu token hết hạn, xóa authentication để user phải đăng nhập lại
                     SecurityContextHolder.clearContext();
                 }
-
                 filterChain.doFilter(request, response);
                 return;
             } catch (Exception e) {
@@ -71,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 //        neu kh có token hoạc di qua api ma cho phep di qua, se vao security config
-        System.err.println("Cho phép đi qua nếu kh cấu hình authenticated trong config");
+        System.err.println("request không mang theo token hoạc di qua api ma cho phep di qua, se vao security config");
         filterChain.doFilter(request, response);
     }
 }

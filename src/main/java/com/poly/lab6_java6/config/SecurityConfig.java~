@@ -41,7 +41,6 @@ public class SecurityConfig {
                        .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
                );
         http
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Vô hiệu hóa session
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Thêm filter xử lý JWT
 
 

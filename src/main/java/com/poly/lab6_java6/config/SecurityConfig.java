@@ -33,6 +33,8 @@ public class SecurityConfig {
         // Cấu hình bảo mật
        http.csrf(csrf -> csrf.disable())
                .authorizeHttpRequests(auth -> auth.requestMatchers("/oauth2/**","/test","/login").permitAll()
+                       .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                       .requestMatchers("/user/**").hasAuthority("USER")
                        .anyRequest().authenticated()
                )
                .oauth2Login(oauth2 -> oauth2 // Kích hoạt OAuth2
