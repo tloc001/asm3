@@ -1,6 +1,5 @@
 package com.poly.lab6_java6.repositories;
 
-
 import com.poly.lab6_java6.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

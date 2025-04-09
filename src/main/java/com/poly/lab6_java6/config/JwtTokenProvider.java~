@@ -28,6 +28,7 @@ public class JwtTokenProvider {
     private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     private final long jwtExpiration = 36000000;
 //    Thoi gian het han cua 1 token
+
     //setSubject(username): Lưu username vào JWT.
 //setExpiration(expiryDate): Thiết lập thời gian hết hạn.
 //signWith(secretKey): Ký JWT bằng secret key.

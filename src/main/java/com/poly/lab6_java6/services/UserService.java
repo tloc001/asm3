@@ -3,6 +3,7 @@ package com.poly.lab6_java6.services;
 
 import com.poly.lab6_java6.models.Authority;
 import com.poly.lab6_java6.config.CustomUserDetails;
+import com.poly.lab6_java6.models.CRUDUserDTO;
 import com.poly.lab6_java6.models.Role;
 import com.poly.lab6_java6.models.User;
 import com.poly.lab6_java6.repositories.AuthorityRepository;
@@ -30,7 +31,6 @@ public class UserService implements UserDetailsService {
     private AuthorityRepository authorityRepository;
 
 
-
     public List<User> findAll() {
     return	userRepository.findAll();
     }
@@ -46,6 +46,11 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+    public List<CRUDUserDTO> convertUserToCRUDUserDTO() {
+        List<User> users = this.findAll();
+     return users.stream().map(user -> new CRUDUserDTO(user.getEmail(), user.getFullname(), user.getPicture(),
+             user.getAuthorities().stream().map( role-> role.getRole().getRole()).toList())).toList();
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

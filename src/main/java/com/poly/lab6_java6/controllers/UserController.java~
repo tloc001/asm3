@@ -3,7 +3,9 @@ package com.poly.lab6_java6.controllers;
 import com.poly.lab6_java6.config.CustomUserDetails;
 import com.poly.lab6_java6.config.JwtTokenProvider;
 import com.poly.lab6_java6.models.LoginRequest;
+import com.poly.lab6_java6.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -18,20 +22,18 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-
+@CrossOrigin(origins = "http://localhost:5173",allowCredentials = "true")
 @RestController
 public class UserController {
-
+    @Autowired
+    private UserService userService;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
     JwtTokenProvider jwtTokenProvider;
-
-    @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
-//        Client gửi POST /login với username/password
+    //        Client gửi POST /login với username/password
 //↓
 //UsernamePasswordAuthenticationFilter
 //↓
@@ -46,6 +48,9 @@ public class UserController {
 //So sánh mật khẩu
 //↓
 //→ Nếu đúng: tạo Authentication → set vào SecurityContextHolder
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
+        System.out.println("chay qua controller");
         try{
 //            xác thực thông tin của user
             Authentication authentication = authenticationManager.authenticate(
@@ -70,20 +75,10 @@ public class UserController {
             return  new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
     }
-    @GetMapping("/oauth2/success")
-    public ResponseEntity<?> getUserInfo(OAuth2AuthenticationToken authentication) {
-        System.out.println("Authentication: " + authentication); // Debug
-        if (authentication == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
-        }
-        OAuth2User user = authentication.getPrincipal();
-        return ResponseEntity.ok(user.getAttributes());
-    }
     @GetMapping("/oauth2/failure")
     public ResponseEntity<String> loginFailed() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Đăng nhập thất bại!");
     }
-
     @GetMapping("/ok")
     public ResponseEntity<?> getUser() {
         return ResponseEntity.ok("okkk");
@@ -91,7 +86,7 @@ public class UserController {
 
     @GetMapping("/admin/ok")
     public ResponseEntity<?> getAdmin() {
-        return ResponseEntity.ok("okkk");
+        return ResponseEntity.ok(userService.findAll());
     }
 
 }

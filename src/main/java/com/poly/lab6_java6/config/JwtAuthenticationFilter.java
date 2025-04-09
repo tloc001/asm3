@@ -26,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 @Override
 protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
+    System.out.println("chay qua JwtAuthenticationFilter");
     final String authHeader = request.getHeader("Authorization");
 
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -50,7 +51,6 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
             log.error("JWT Filter Error: {}", e.getMessage());
         }
     }
-
     // ❗ Luôn gọi filter chain ở cuối cùng
     filterChain.doFilter(request, response);
 }

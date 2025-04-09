@@ -1,4 +1,4 @@
-package com.poly.lab6_java6.services;
+package com.poly.lab6_java6.config;
 
 import com.poly.lab6_java6.models.Authority;
 import com.poly.lab6_java6.models.Role;
@@ -33,14 +33,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
-
         // Lấy email từ Google
         String email = oAuth2User.getAttribute("email");
+        System.out.println(email);
         String picture = oAuth2User.getAttribute("picture");
         String fullname = oAuth2User.getAttribute("name");
         // Kiểm tra xem user có trong database không
         Optional<User> user = userRepository.findByEmail(email);
+
         if (!user.isPresent()) {
+            System.out.println("user null");
             User userRegister = new User(email, fullname,Long.toHexString(System.currentTimeMillis()), picture,null);
             userRegister.setPassword(new BCryptPasswordEncoder().encode(userRegister.getPassword()));
             userRegister = userRepository.save(userRegister);
@@ -49,6 +51,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             auth.setRole(new Role("USER"));
             authorityRepository.save(auth);
         }else{
+            System.out.println("user ko null");
             user.get().setFullname(fullname);
             user.get().setPicture(picture);
             userRepository.save(user.get());
@@ -59,17 +62,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         for (Authority authority : authorities) {
             grantedAuthoritySet.add(new SimpleGrantedAuthority(authority.getRole().getRole()));
         }
-
+        System.out.println(authorities.get(0).getRole().getRole());
         // Tạo UsernamePasswordAuthenticationToken để đồng bộ với đăng nhập Username/Password
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 email,  // Username
                 null,  // Không có password vì dùng OAuth2
                 grantedAuthoritySet  // Quyền từ database
         );
-
         // Set authentication vào SecurityContext để sử dụng chung
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         // Trả về OAuth2User (Spring yêu cầu trả về OAuth2User)
         return new DefaultOAuth2User(grantedAuthoritySet, oAuth2User.getAttributes(), "email");
     }
